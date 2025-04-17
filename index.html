@@ -8,6 +8,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
             line-height: 1.6;
@@ -16,12 +22,15 @@
             margin: 0 auto;
             padding: 20px;
             background-color: #f5f5f5;
+            -webkit-text-size-adjust: 100%;
+            touch-action: manipulation;
         }
         
         h1 {
             text-align: center;
             color: #444;
             margin-bottom: 30px;
+            font-size: 24px;
         }
         
         .disclaimer {
@@ -48,23 +57,24 @@
             margin-bottom: 10px;
             display: block;
             color: #555;
+            font-size: 16px;
         }
         
         input[type="text"],
         input[type="datetime-local"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-            margin-bottom: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 16px;
         }
         
         .agreement {
             margin: 25px 0;
             padding: 15px;
             background-color: #f0f7ff;
-            border-radius: 5px;
+            border-radius: 8px;
         }
         
         .checkbox-container {
@@ -72,19 +82,26 @@
             align-items: center;
         }
         
+        .checkbox-container input[type="checkbox"] {
+            margin-right: 10px;
+            width: 18px;
+            height: 18px;
+        }
+        
         button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 12px 20px;
+            padding: 14px 20px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
             font-size: 16px;
             margin: 10px 0;
             cursor: pointer;
-            border-radius: 4px;
+            border-radius: 6px;
             transition: background-color 0.3s;
+            width: 100%;
         }
         
         button:hover {
@@ -98,42 +115,52 @@
         
         .signature-container {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             margin-top: 30px;
-            flex-wrap: wrap;
         }
         
         .signature-wrapper {
-            width: 48%;
-            margin-bottom: 20px;
+            width: 100%;
+            margin-bottom: 25px;
         }
         
         .signature-title {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .signature-pad-container {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            overflow: hidden;
         }
         
         .signature-pad {
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            background-color: white;
+            display: block;
+            width: 100%;
+            height: 100%;
             touch-action: none;
             -webkit-user-select: none;
             user-select: none;
-            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='black' /></svg>") 8 8, crosshair;
         }
         
         .signature-clear {
             display: block;
-            margin-top: 5px;
+            margin-top: 8px;
             background-color: #f44336;
             color: white;
             border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
+            padding: 8px 12px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 14px;
+            width: 100%;
         }
         
         .signature-clear:hover {
@@ -142,19 +169,19 @@
         
         .form-actions {
             display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            gap: 10px;
+            flex-direction: column;
+            margin-top: 25px;
+            gap: 12px;
         }
         
         #submitBtn {
-            flex: 2;
+            order: 1;
         }
         
         #downloadBtn {
-            flex: 1;
             background-color: #2196F3;
             display: none;
+            order: 2;
         }
         
         #downloadBtn:hover {
@@ -165,42 +192,68 @@
             display: none;
             margin-top: 30px;
             border: 1px solid #ddd;
-            padding: 15px;
+            padding: 20px;
             background-color: white;
-            border-radius: 5px;
+            border-radius: 8px;
         }
         
         .preview-title {
             text-align: center;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            font-size: 20px;
         }
         
         .preview-content {
             line-height: 1.8;
+            font-size: 16px;
         }
         
         .preview-signatures {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
             margin-top: 30px;
+            gap: 20px;
         }
         
         .preview-signature {
             text-align: center;
-            width: 40%;
         }
         
         .preview-signature-img {
-            max-height: 80px;
+            max-height: 100px;
             border-bottom: 1px solid #333;
-            padding-bottom: 5px;
-            margin-bottom: 5px;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+            max-width: 100%;
         }
 
-        @media (max-width: 768px) {
+        @media (min-width: 768px) {
+            .signature-container {
+                flex-direction: row;
+                gap: 20px;
+            }
+            
             .signature-wrapper {
-                width: 100% !important;
+                width: calc(50% - 10px);
+            }
+            
+            .form-actions {
+                flex-direction: row;
+            }
+            
+            #submitBtn, #downloadBtn {
+                width: auto;
+                flex: 1;
+            }
+            
+            .preview-signatures {
+                flex-direction: row;
+                justify-content: space-around;
+            }
+            
+            .preview-signature {
+                width: 45%;
             }
         }
     </style>
@@ -241,13 +294,17 @@
             <div class="signature-container">
                 <div class="signature-wrapper">
                     <div class="signature-title">男方签名</div>
-                    <canvas id="maleSignature" class="signature-pad"></canvas>
+                    <div class="signature-pad-container">
+                        <canvas id="maleSignature" class="signature-pad"></canvas>
+                    </div>
                     <button type="button" class="signature-clear" onclick="clearSignature('male')">清除签名</button>
                 </div>
                 
                 <div class="signature-wrapper">
                     <div class="signature-title">女方签名</div>
-                    <canvas id="femaleSignature" class="signature-pad"></canvas>
+                    <div class="signature-pad-container">
+                        <canvas id="femaleSignature" class="signature-pad"></canvas>
+                    </div>
                     <button type="button" class="signature-clear" onclick="clearSignature('female')">清除签名</button>
                 </div>
             </div>
@@ -285,14 +342,17 @@
         
         // 高清初始化签名板
         function initSignaturePad(canvas) {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
-            const width = canvas.offsetWidth;
-            const height = canvas.offsetHeight;
             
-            canvas.width = width * ratio;
-            canvas.height = height * ratio;
-            canvas.style.width = width + 'px';
-            canvas.style.height = height + 'px';
+            // 设置canvas的物理尺寸
+            canvas.width = rect.width * ratio;
+            canvas.height = rect.height * ratio;
+            
+            // 设置canvas的显示尺寸
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
             
             const signaturePad = new SignaturePad(canvas, {
                 backgroundColor: 'rgba(255, 255, 255, 0)',
@@ -302,7 +362,60 @@
                 throttle: 16,
                 velocityFilterWeight: 0.7
             });
-            
+
+            // 修复触摸事件坐标问题
+            if ('ontouchstart' in window) {
+                const handleTouchStart = (e) => {
+                    if (e.target === canvas) {
+                        e.preventDefault();
+                        const touch = e.touches[0];
+                        const rect = canvas.getBoundingClientRect();
+                        const x = touch.clientX - rect.left;
+                        const y = touch.clientY - rect.top;
+                        
+                        const mouseEvent = new MouseEvent('mousedown', {
+                            clientX: touch.clientX,
+                            clientY: touch.clientY,
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        });
+                        canvas.dispatchEvent(mouseEvent);
+                    }
+                };
+
+                const handleTouchMove = (e) => {
+                    if (e.target === canvas) {
+                        e.preventDefault();
+                        const touch = e.touches[0];
+                        const mouseEvent = new MouseEvent('mousemove', {
+                            clientX: touch.clientX,
+                            clientY: touch.clientY,
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        });
+                        canvas.dispatchEvent(mouseEvent);
+                    }
+                };
+
+                const handleTouchEnd = (e) => {
+                    if (e.target === canvas) {
+                        e.preventDefault();
+                        const mouseEvent = new MouseEvent('mouseup', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        });
+                        canvas.dispatchEvent(mouseEvent);
+                    }
+                };
+
+                canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+                canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+                canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+            }
+
             return signaturePad;
         }
         
@@ -310,6 +423,25 @@
         function preventScroll(e) {
             if (e.target.classList.contains('signature-pad')) {
                 e.preventDefault();
+            }
+        }
+        
+        // 更新签名板尺寸
+        function updateSignaturePadSize(signaturePad, canvas) {
+            const container = canvas.parentElement;
+            const rect = container.getBoundingClientRect();
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            
+            const oldData = signaturePad.toData();
+            
+            canvas.width = rect.width * ratio;
+            canvas.height = rect.height * ratio;
+            canvas.style.width = rect.width + 'px';
+            canvas.style.height = rect.height + 'px';
+            
+            signaturePad.clear();
+            if (oldData) {
+                signaturePad.fromData(oldData);
             }
         }
         
@@ -327,18 +459,19 @@
             femaleSignaturePad = initSignaturePad(femaleCanvas);
             
             // 添加移动端支持
-            ['touchstart', 'touchmove'].forEach(event => {
+            ['touchstart', 'touchmove', 'touchend'].forEach(event => {
                 maleCanvas.addEventListener(event, preventScroll, { passive: false });
                 femaleCanvas.addEventListener(event, preventScroll, { passive: false });
             });
             
             // 窗口大小变化时重设canvas
-            window.addEventListener('resize', function() {
-                maleSignaturePad.clear();
-                femaleSignaturePad.clear();
-                maleSignaturePad = initSignaturePad(maleCanvas);
-                femaleSignaturePad = initSignaturePad(femaleCanvas);
+            const resizeObserver = new ResizeObserver(() => {
+                updateSignaturePadSize(maleSignaturePad, maleCanvas);
+                updateSignaturePadSize(femaleSignaturePad, femaleCanvas);
             });
+            
+            resizeObserver.observe(maleCanvas.parentElement);
+            resizeObserver.observe(femaleCanvas.parentElement);
             
             // 启用/禁用提交按钮
             consentCheckbox.addEventListener('change', function() {
@@ -398,8 +531,8 @@
                     femaleName: document.getElementById('femaleName').value,
                     femaleID: femaleID,
                     relationTime: document.getElementById('relationTime').value,
-                    maleSignature: maleSignaturePad.toDataURL(),
-                    femaleSignature: femaleSignaturePad.toDataURL(),
+                    maleSignature: maleSignaturePad.toDataURL('image/png'),
+                    femaleSignature: femaleSignaturePad.toDataURL('image/png'),
                     timestamp: new Date().toISOString()
                 };
                 
@@ -435,7 +568,7 @@
                 const dt = new Date(datetimeStr);
                 return dt.toLocaleString('zh-CN');
             };
-            
+
             // 生成预览内容
             previewContent.innerHTML = `
                 <p><strong>男方信息：</strong></p>
