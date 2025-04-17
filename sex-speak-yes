@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>性关系同意确认书（含手写签名和下载）</title>
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 30px;
+        }
+        
+        .disclaimer {
+            background-color: #fff8e1;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        
+        .form-container {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .form-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        
+        .agreement {
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-radius: 5px;
+        }
+        
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 10px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .signature-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .signature-wrapper {
+            width: 48%;
+            margin-bottom: 20px;
+        }
+        
+        .signature-title {
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .signature-pad {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        
+        .signature-clear {
+            display: block;
+            margin-top: 5px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .signature-clear:hover {
+            background-color: #d32f2f;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            gap: 10px;
+        }
+        
+        #submitBtn {
+            flex: 2;
+        }
+        
+        #downloadBtn {
+            flex: 1;
+            background-color: #2196F3;
+            display: none;
+        }
+        
+        #downloadBtn:hover {
+            background-color: #0b7dda;
+        }
+        
+        .preview-container {
+            display: none;
+            margin-top: 30px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: white;
+            border-radius: 5px;
+        }
+        
+        .preview-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .preview-content {
+            line-height: 1.8;
+        }
+        
+        .preview-signatures {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        
+        .preview-signature {
+            text-align: center;
+            width: 40%;
+        }
+        
+        .preview-signature-img {
+            max-height: 80px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>性关系同意确认书</h1>
+    
+    <div class="disclaimer">
+        <strong>重要声明：</strong>本确认书仅作为双方自愿发生性关系的记录工具，不能替代法律文书。所有信息将加密存储，仅用于法律需要时作为证据使用。
+    </div>
+    
+    <div class="form-container">
+        <form id="consentForm">
+            <div class="form-section">
+                <span class="section-title">男方信息</span>
+                <input type="text" id="maleName" name="maleName" placeholder="男方姓名" required>
+                <input type="text" id="maleID" name="maleID" placeholder="男方身份证号码" required pattern="\d{17}[\dXx]">
+            </div>
+            
+            <div class="form-section">
+                <span class="section-title">女方信息</span>
+                <input type="text" id="femaleName" name="femaleName" placeholder="女方姓名" required>
+                <input type="text" id="femaleID" name="femaleID" placeholder="女方身份证号码" required pattern="\d{17}[\dXx]">
+            </div>
+            
+            <div class="form-section">
+                <span class="section-title">发生关系时间</span>
+                <input type="datetime-local" id="relationTime" name="relationTime" required>
+            </div>
+            
+            <div class="agreement">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="consentCheckbox" name="consent" required>
+                    <label for="consentCheckbox">我确认双方自愿发生关系，且不反悔</label>
+                </div>
+            </div>
+            
+            <div class="signature-container">
+                <div class="signature-wrapper">
+                    <div class="signature-title">男方签名</div>
+                    <canvas id="maleSignature" class="signature-pad" width="350" height="150"></canvas>
+                    <button type="button" class="signature-clear" onclick="clearSignature('male')">清除签名</button>
+                </div>
+                
+                <div class="signature-wrapper">
+                    <div class="signature-title">女方签名</div>
+                    <canvas id="femaleSignature" class="signature-pad" width="350" height="150"></canvas>
+                    <button type="button" class="signature-clear" onclick="clearSignature('female')">清除签名</button>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" id="submitBtn">提交确认</button>
+                <button type="button" id="downloadBtn" onclick="downloadConsent()">下载同意书</button>
+            </div>
+        </form>
+        
+        <div id="previewContainer" class="preview-container">
+            <div class="preview-title">性关系同意确认书</div>
+            <div id="previewContent" class="preview-content">
+                <!-- 动态生成的内容将在这里显示 -->
+            </div>
+            <div class="preview-signatures">
+                <div class="preview-signature">
+                    <div>男方签名：</div>
+                    <img id="previewMaleSignature" class="preview-signature-img" src="">
+                    <div id="previewMaleName"></div>
+                </div>
+                <div class="preview-signature">
+                    <div>女方签名：</div>
+                    <img id="previewFemaleSignature" class="preview-signature-img" src="">
+                    <div id="previewFemaleName"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 初始化签名板
+        let maleSignaturePad, femaleSignaturePad;
+        let currentFormData = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const consentCheckbox = document.getElementById('consentCheckbox');
+            const submitBtn = document.getElementById('submitBtn');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const form = document.getElementById('consentForm');
+            const previewContainer = document.getElementById('previewContainer');
+            
+            // 初始化签名板
+            const maleCanvas = document.getElementById('maleSignature');
+            maleSignaturePad = new SignaturePad(maleCanvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+            
+            const femaleCanvas = document.getElementById('femaleSignature');
+            femaleSignaturePad = new SignaturePad(femaleCanvas, {
+                backgroundColor: 'rgb(255, 255, 255)',
+                penColor: 'rgb(0, 0, 0)'
+            });
+            
+            // 调整签名板大小
+            function resizeCanvas(canvas) {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }
+            
+            window.addEventListener('resize', function() {
+                resizeCanvas(maleCanvas);
+                resizeCanvas(femaleCanvas);
+            });
+            
+            resizeCanvas(maleCanvas);
+            resizeCanvas(femaleCanvas);
+            
+            // 启用/禁用提交按钮
+            consentCheckbox.addEventListener('change', function() {
+                updateSubmitButton();
+            });
+            
+            // 监听签名变化
+            maleSignaturePad.addEventListener('endStroke', updateSubmitButton);
+            femaleSignaturePad.addEventListener('endStroke', updateSubmitButton);
+            
+            // 身份证验证
+            function validateID(id) {
+                const reg = /^\d{17}[\dXx]$/;
+                return reg.test(id);
+            }
+            
+            // 更新提交按钮状态
+            function updateSubmitButton() {
+                const isConsentChecked = consentCheckbox.checked;
+                const isMaleSigned = !maleSignaturePad.isEmpty();
+                const isFemaleSigned = !femaleSignaturePad.isEmpty();
+                
+                submitBtn.disabled = !(isConsentChecked && isMaleSigned && isFemaleSigned);
+            }
+            
+            // 表单提交
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const maleID = document.getElementById('maleID').value;
+                const femaleID = document.getElementById('femaleID').value;
+                
+                if (!validateID(maleID)) {
+                    alert('请输入有效的男方身份证号码');
+                    return;
+                }
+                
+                if (!validateID(femaleID)) {
+                    alert('请输入有效的女方身份证号码');
+                    return;
+                }
+                
+                if (maleSignaturePad.isEmpty()) {
+                    alert('请男方提供手写签名');
+                    return;
+                }
+                
+                if (femaleSignaturePad.isEmpty()) {
+                    alert('请女方提供手写签名');
+                    return;
+                }
+                
+                // 收集表单数据
+                currentFormData = {
+                    maleName: document.getElementById('maleName').value,
+                    maleID: maleID,
+                    femaleName: document.getElementById('femaleName').value,
+                    femaleID: femaleID,
+                    relationTime: document.getElementById('relationTime').value,
+                    maleSignature: maleSignaturePad.toDataURL(),
+                    femaleSignature: femaleSignaturePad.toDataURL(),
+                    timestamp: new Date().toISOString()
+                };
+                
+                // 显示预览
+                showPreview(currentFormData);
+                
+                // 显示下载按钮
+                downloadBtn.style.display = 'block';
+                
+                // 滚动到预览区域
+                previewContainer.scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+        
+        // 清除签名
+        function clearSignature(gender) {
+            if (gender === 'male') {
+                maleSignaturePad.clear();
+            } else {
+                femaleSignaturePad.clear();
+            }
+            updateSubmitButton();
+        }
+        
+        // 显示预览
+        function showPreview(data) {
+            const previewContainer = document.getElementById('previewContainer');
+            const previewContent = document.getElementById('previewContent');
+            
+            // 格式化日期时间
+            const formatDateTime = (datetimeStr) => {
+                if (!datetimeStr) return '';
+                const dt = new Date(datetimeStr);
+                return dt.toLocaleString('zh-CN');
+            };
+            
+            // 生成预览内容
+            previewContent.innerHTML = `
+                <p><strong>男方信息：</strong></p>
+                <p>姓名：${data.maleName}</p>
+                <p>身份证号码：${data.maleID.replace(/(\d{4})\d+(\d{4})/, '$1********$2')}</p>
+                
+                <p><strong>女方信息：</strong></p>
+                <p>姓名：${data.femaleName}</p>
+                <p>身份证号码：${data.femaleID.replace(/(\d{4})\d+(\d{4})/, '$1********$2')}</p>
+                
+                <p><strong>发生关系时间：</strong>${formatDateTime(data.relationTime)}</p>
+                
+                <p><strong>确认条款：</strong></p>
+                <p>双方确认自愿发生关系，且不反悔。</p>
+                
+                <p><strong>提交时间：</strong>${formatDateTime(data.timestamp)}</p>
+            `;
+            
+            // 显示签名
+            document.getElementById('previewMaleSignature').src = data.maleSignature;
+            document.getElementById('previewFemaleSignature').src = data.femaleSignature;
+            document.getElementById('previewMaleName').textContent = data.maleName;
+            document.getElementById('previewFemaleName').textContent = data.femaleName;
+            
+            // 显示预览区域
+            previewContainer.style.display = 'block';
+        }
+        
+        // 下载同意书
+        function downloadConsent() {
+            if (!currentFormData) {
+                alert('请先提交表单');
+                return;
+            }
+            
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // 添加标题
+            doc.setFontSize(18);
+            doc.text('性关系同意确认书', 105, 20, { align: 'center' });
+            
+            // 设置正文样式
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'normal');
+            
+            // 添加男方信息
+            doc.text(`男方姓名：${currentFormData.maleName}`, 20, 40);
+            doc.text(`身份证号：${currentFormData.maleID.replace(/(\d{4})\d+(\d{4})/, '$1********$2')}`, 20, 50);
+            
+            // 添加女方信息
+            doc.text(`女方姓名：${currentFormData.femaleName}`, 20, 70);
+            doc.text(`身份证号：${currentFormData.femaleID.replace(/(\d{4})\d+(\d{4})/, '$1********$2')}`, 20, 80);
+            
+            // 添加时间信息
+            const formatDateTime = (datetimeStr) => {
+                if (!datetimeStr) return '';
+                const dt = new Date(datetimeStr);
+                return dt.toLocaleString('zh-CN');
+            };
+            
+            doc.text(`发生关系时间：${formatDateTime(currentFormData.relationTime)}`, 20, 100);
+            doc.text(`提交时间：${formatDateTime(currentFormData.timestamp)}`, 20, 110);
+            
+            // 添加确认条款
+            doc.text('确认条款：', 20, 130);
+            doc.text('双方确认自愿发生关系，且不反悔。', 20, 140);
+            
+            // 添加签名
+            const maleImg = new Image();
+            maleImg.src = currentFormData.maleSignature;
+            
+            const femaleImg = new Image();
+            femaleImg.src = currentFormData.femaleSignature;
+            
+            // 等待图片加载
+            Promise.all([
+                new Promise(resolve => { maleImg.onload = resolve; }),
+                new Promise(resolve => { femaleImg.onload = resolve; })
+            ]).then(() => {
+                // 添加男方签名
+                doc.addImage(maleImg, 'PNG', 30, 160, 60, 30);
+                doc.text(`${currentFormData.maleName} 签名`, 30, 195);
+                
+                // 添加女方签名
+                doc.addImage(femaleImg, 'PNG', 120, 160, 60, 30);
+                doc.text(`${currentFormData.femaleName} 签名`, 120, 195);
+                
+                // 保存PDF
+                doc.save(`性关系同意确认书_${new Date().toISOString().slice(0,10)}.pdf`);
+            });
+        }
+    </script>
+</body>
+</html>
