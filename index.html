@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>性关系同意确认书（含手写签名和下载）</title>
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -118,6 +118,10 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             background-color: white;
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+            cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'><circle cx='8' cy='8' r='6' fill='black' /></svg>") 8 8, crosshair;
         }
         
         .signature-clear {
@@ -193,6 +197,12 @@
             padding-bottom: 5px;
             margin-bottom: 5px;
         }
+
+        @media (max-width: 768px) {
+            .signature-wrapper {
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -231,13 +241,13 @@
             <div class="signature-container">
                 <div class="signature-wrapper">
                     <div class="signature-title">男方签名</div>
-                    <canvas id="maleSignature" class="signature-pad" width="350" height="150"></canvas>
+                    <canvas id="maleSignature" class="signature-pad"></canvas>
                     <button type="button" class="signature-clear" onclick="clearSignature('male')">清除签名</button>
                 </div>
                 
                 <div class="signature-wrapper">
                     <div class="signature-title">女方签名</div>
-                    <canvas id="femaleSignature" class="signature-pad" width="350" height="150"></canvas>
+                    <canvas id="femaleSignature" class="signature-pad"></canvas>
                     <button type="button" class="signature-clear" onclick="clearSignature('female')">清除签名</button>
                 </div>
             </div>
@@ -273,41 +283,62 @@
         let maleSignaturePad, femaleSignaturePad;
         let currentFormData = null;
         
+        // 高清初始化签名板
+        function initSignaturePad(canvas) {
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            const width = canvas.offsetWidth;
+            const height = canvas.offsetHeight;
+            
+            canvas.width = width * ratio;
+            canvas.height = height * ratio;
+            canvas.style.width = width + 'px';
+            canvas.style.height = height + 'px';
+            
+            const signaturePad = new SignaturePad(canvas, {
+                backgroundColor: 'rgba(255, 255, 255, 0)',
+                penColor: '#000000',
+                minWidth: 1.5,
+                maxWidth: 2.5,
+                throttle: 16,
+                velocityFilterWeight: 0.7
+            });
+            
+            return signaturePad;
+        }
+        
+        // 防止滚动
+        function preventScroll(e) {
+            if (e.target.classList.contains('signature-pad')) {
+                e.preventDefault();
+            }
+        }
+        
         document.addEventListener('DOMContentLoaded', function() {
             const consentCheckbox = document.getElementById('consentCheckbox');
             const submitBtn = document.getElementById('submitBtn');
             const downloadBtn = document.getElementById('downloadBtn');
             const form = document.getElementById('consentForm');
             const previewContainer = document.getElementById('previewContainer');
+            const maleCanvas = document.getElementById('maleSignature');
+            const femaleCanvas = document.getElementById('femaleSignature');
             
             // 初始化签名板
-            const maleCanvas = document.getElementById('maleSignature');
-            maleSignaturePad = new SignaturePad(maleCanvas, {
-                backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
+            maleSignaturePad = initSignaturePad(maleCanvas);
+            femaleSignaturePad = initSignaturePad(femaleCanvas);
+            
+            // 添加移动端支持
+            ['touchstart', 'touchmove'].forEach(event => {
+                maleCanvas.addEventListener(event, preventScroll, { passive: false });
+                femaleCanvas.addEventListener(event, preventScroll, { passive: false });
             });
             
-            const femaleCanvas = document.getElementById('femaleSignature');
-            femaleSignaturePad = new SignaturePad(femaleCanvas, {
-                backgroundColor: 'rgb(255, 255, 255)',
-                penColor: 'rgb(0, 0, 0)'
-            });
-            
-            // 调整签名板大小
-            function resizeCanvas(canvas) {
-                const ratio = Math.max(window.devicePixelRatio || 1, 1);
-                canvas.width = canvas.offsetWidth * ratio;
-                canvas.height = canvas.offsetHeight * ratio;
-                canvas.getContext("2d").scale(ratio, ratio);
-            }
-            
+            // 窗口大小变化时重设canvas
             window.addEventListener('resize', function() {
-                resizeCanvas(maleCanvas);
-                resizeCanvas(femaleCanvas);
+                maleSignaturePad.clear();
+                femaleSignaturePad.clear();
+                maleSignaturePad = initSignaturePad(maleCanvas);
+                femaleSignaturePad = initSignaturePad(femaleCanvas);
             });
-            
-            resizeCanvas(maleCanvas);
-            resizeCanvas(femaleCanvas);
             
             // 启用/禁用提交按钮
             consentCheckbox.addEventListener('change', function() {
@@ -409,11 +440,11 @@
             previewContent.innerHTML = `
                 <p><strong>男方信息：</strong></p>
                 <p>姓名：${data.maleName}</p>
-                <p>身份证号码：${data.maleID.replace(/(\d{4})\d+(\d{4})/, '$1********$2')}</p>
+                <p>身份证号码：${data.maleID.replace(/(\d{4})\d+(\d{4})/, '\$1********\$2')}</p>
                 
                 <p><strong>女方信息：</strong></p>
                 <p>姓名：${data.femaleName}</p>
-                <p>身份证号码：${data.femaleID.replace(/(\d{4})\d+(\d{4})/, '$1********$2')}</p>
+                <p>身份证号码：${data.femaleID.replace(/(\d{4})\d+(\d{4})/, '\$1********\$2')}</p>
                 
                 <p><strong>发生关系时间：</strong>${formatDateTime(data.relationTime)}</p>
                 
@@ -479,7 +510,7 @@
             
             const femaleImg = new Image();
             femaleImg.src = currentFormData.femaleSignature;
-            
+
             // 等待图片加载
             Promise.all([
                 new Promise(resolve => { maleImg.onload = resolve; }),
